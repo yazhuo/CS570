@@ -19,12 +19,12 @@ Note:
 - customer refers to a content provider, such as CNN.
 
 ## Tasks
-**Yazhuo**
+### Yazhuo
 - [ ] Recency feature extraction (I have implemented data structure to get recency faster, and other features should be not that hard to extract)
 - [ ] CDN Cache Simulator
 
-**Yanan**
+### Yanan
 - [ ] ?
 
-**Yibo**
+### Yibo
 - [ ] ?
