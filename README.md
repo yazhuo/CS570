@@ -20,7 +20,7 @@ Note:
 
 ## Tasks
 **Yazhuo**
-- [ ] Recency feature extraction (I have implemented data structure to get recency faster, other features should be not that hard to extract)
+- [ ] Recency feature extraction (I have implemented data structure to get recency faster, and other features should be not that hard to extract)
 - [ ] CDN Cache Simulator
 
 **Yanan**
