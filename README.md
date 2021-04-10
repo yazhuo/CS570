@@ -24,7 +24,9 @@ Note:
 - [ ] CDN Cache Simulator
 
 ### Yanan
-- [ ] ?
+- [ ] feature?
+- [ ] cluster?
 
 ### Yibo
-- [ ] ?
+- [ ] feature?
+- [ ] cluster?
