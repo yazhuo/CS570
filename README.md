@@ -41,3 +41,10 @@ For each DC,
     - view the object as unit size and varible size
 3. We look forward to seeing the miss rate/byte miss rate decrease
 4. To further strengthen our results, calculate the average miss rate improvement of all customers in the same clustering group
+
+## Create virtual env
+
+1. `virtualenv --python=/usr/bin/python3 venv` - create a python3 virtual environment called venv
+2. `source venv/bin/activate` - enters the virtual environment
+3. `pip3 install -U matplotlib ` 
+4. `pip3 install -U scikit-learn`
