@@ -30,3 +30,14 @@ Note:
 ### Yibo
 - [ ] feature?
 - [ ] cluster?
+
+
+## Result Comparison
+
+For each DC,
+1. choose one customer as a representative in each clustering group
+2. calculate MRC for this customer under single cache and partitioned cache
+    - metrics: miss rate and byte miss rate
+    - view the object as unit size and varible size
+3. We look forward to seeing the miss rate/byte miss rate decrease
+4. To further strengthen our results, calculate the average miss rate improvement of all customers in the same clustering group
