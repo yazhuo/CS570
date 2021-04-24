@@ -6,71 +6,112 @@ import pandas as pd
 import numpy as np
 import mmh3
 import math
+import os
+from multiprocessing import Pool
 
 from splay import SplayTree, node_uniq
 
-HDC = [
-      "dc_1448",
-      "dc_1831",
-      "dc_1870",
-      "dc_924",
-      "dc_1731",
-      "dc_189",
-      "dc_1966",
-      "dc_66",
-      "dc_85",
-      "dc_1384"]
-
 DC = [
-      "dc_1448",
-      "dc_1831",
-      "dc_1870",
-      "dc_924",
-      "dc_1731",
-      "dc_189",
-      "dc_1966",
-      "dc_66",
-      "dc_85",
-      "dc_1384"]
+    "dc_189",
+    "dc_924",
+    "dc_1384",
+    "dc_1448",
+    "dc_1731",
+    "dc_1831",
+    "dc_1870",
+    "dc_1966"]
 
-# representative customers in each DC
-agents = []
-clusters = [[0,12], [63,66]]
 
-hetero_dc_path = "/research/jason/ALL_DATA/akamai4/csv/"
-split_dc_path = "/research/yazhuo/ALL_DATA/CDN/splitCustomer/"
-
+input_dir = "/research/yazhuo/CS570/Dataset/K8/dc_1448/"
+output_dir = "/research/yazhuo/CS570/Output/K8/dc_1448/"
 
 ###############################################################################
 #   Core functions
 ###############################################################################
 
+def sim_lru_cache(i):
 
-def single_cache():
-    pass
+    if i < 8:
+        input_file_loc = input_dir +  "cluster_" + str(i)
+        output_file_loc = output_dir + "rd_cluster_" + str(i)
+    else:
+        input_file_loc = input_dir +  "single_cache_trace"
+        output_file_loc = output_dir + "rd_single"
+    
+    times, customers, keys, sizes = reader(input_file_loc)
+
+    n = len(times)
+    T = SplayTree()
+    H = defaultdict(lambda:None)
+
+    rds = []
+    for i in range(n):
+        rd = cal_req_rd(times[i], keys[i], 1, T, H)
+        rds.append(rd)
+    
+    save_rds(output_file_loc, rds, customers)
 
 
-def partitioned_cache():
-    pass
+def cal_req_rd(t, k, s, T, H):
+    """
+    Calculate reuse distance for the current item
+    """
+    if None == H[k]:
+        newtree = T.insert(t, s)
+        H[k] = t
+        rd = -1
+    else:
+        pre_t = H[k]
+        newtree = T.splay(pre_t)
+        rd = node_uniq(newtree.right) + s
+        H[k] = t
+        newtree = T.delete(pre_t)
+        newtree = T.insert(t, s)
+    
+    return rd
 
 
 ###############################################################################
 #   Auxiliary functions
 ###############################################################################
 
-def reader():
+def reader(file_loc):
 
-    pass
+    df = pd.read_csv(file_loc, sep = '\t', usecols=[0,3,5,9], header=None)
+    
+    times = df[0].values
+    customers = df[3].values
+    keys = df[5].values
+    sizes = df[9].values
+    
+    return times, customers, keys, sizes
 
 
-def save_rds():
-    pass
+def save_rds(output_file_loc, rds, customers):
+    
+    w = open(output_file_loc, 'w')
 
+    for i in range(len(rds)):
+        w.write(str(customers[i])+ "\t" +  str(rds[i])+ '\n')
+    
+    w.close()
 
-def read_rds():
-    pass
 
 
 if __name__ == "__main__":
 
-    pass
+    # test dc_1448
+    
+    print('Parent process %s.' % os.getpid())
+    num_trace = 9
+    p = Pool(num_trace)
+    for i in range(num_trace+1):
+        p.apply_async(sim_lru_cache, args=(i,))
+    
+    print('Waiting for all subprocesses done...')
+    p.close()
+    p.join()
+    print('All subprocesses done.')
+
+    
+    os.popen('python3 /research/yazhuo/Tools/send_email.py simulator_dc_1448')
