@@ -22,11 +22,14 @@ DC = ["dc_1384",
 
 feature_path = "/research/yazhuo/ALL_DATA/CDN/features/"
 culster_path = "/research/yazhuo/ALL_DATA/CDN/clusters/" 
+freq = "/freq.p"
+size = "/size.p"
+burst = "/burst.csv"
 
 
 def getValidIDs(dc):  # read the valid cutomer ids for a datacenter
     validIDs = []
-    with open(output_path + dc + "/customerids.txt", "r") as f:
+    with open(culster_path + dc + "/customerids.txt", "r") as f:
         for id in f.readlines():
             validIDs.append(id.strip())
     return validIDs
