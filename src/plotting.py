@@ -22,8 +22,21 @@ input_dir = "/research/yazhuo/CS570/Output/K8/dc_1448/"
 #   Plotting
 ###############################################################################
 
-def plot():
-    pass
+def plot_mrcs(s_mrc, p_mrc):
+    
+    x_axis = np.arange(len(s_mrc))
+
+    plt.plot(x_axis, s_mrc, label = "Unitary Cache")
+    plt.plot(x_axis, p_mrc, label = "Partitioned Cache")
+
+    plt.xlabel('Cache size (number of items)')
+    plt.ylabel('Miss Rate')
+    plt.ylim(0,1)
+    plt.legend(loc=[1.01, 0])
+    plt.savefig("s_p_mrc.png", bbox_inches='tight')
+
+
+
 
 
 ###############################################################################
@@ -96,4 +109,4 @@ def read_customer_rds():
 
 if __name__ == "__main__":
 
-    cache_mrc()
+    single_mrc, partition_mrc = cache_mrc()
