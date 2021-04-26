@@ -23,22 +23,16 @@ DC = [
 
 
 input_dir = "/research/yazhuo/CS570/Dataset/K8/dc_1448/"
-output_dir = "/research/yazhuo/CS570/Output/K8/dc_1448/variable/"
+output_dir = "/research/yazhuo/CS570/Output/K8/dc_1448/"
 
 ###############################################################################
 #   Core functions
 ###############################################################################
 
-def sim_lru_cache(a):
+def sim_lru_cache():
 
-    c = int(a)
-    
-    if c < 8:
-        input_file_loc = input_dir +  "cluster_" + str(c)
-        output_file_loc = output_dir + "rd_cluster_" + str(c)
-    else:
-        input_file_loc = input_dir +  "single_cache_trace"
-        output_file_loc = output_dir + "rd_single"
+    input_file_loc = input_dir +  "single_cache_trace"
+    output_file_loc = output_dir + "rd_single"
 
     times, customers, keys, sizes = reader(input_file_loc)
 
@@ -91,34 +85,33 @@ def reader(file_loc):
     return times, customers, keys, sizes
 
 
-def save_rds(output_file_loc, rds, customers, c):
+def save_rds(output_file_loc, rds, customers):
     
-    print("start store rd in cluster " + str(c))
     w = open(output_file_loc, 'w')
 
     for i in range(len(rds)):
         w.write(str(customers[i])+ "\t" +  str(rds[i])+ '\n')
-        out_cus_rd = output_dir + "rd_cluster_" + str(c) + "_" + str(customers[i])
+        out_cus_rd = output_dir + "rd_single_"+ str(customers[i])
         with open(out_cus_rd, 'a+') as fc:
             fc.write(str(rds[i]) + "\n")
 
     w.close()
-    print("finish cluster " + str(c))
+    print("finish")
+
+
+def test():
+
+    a = [10, 20, 10, 10, 30, 40, 50]
+    
+    bins = np.arange(10, 60, 10)
+    x,y = np.histogram(a, bins=bins, density=True)
+    print(x)
+    print(y)
+
 
 
 if __name__ == "__main__":
 
-    # test dc_1448
-    
-    print('Parent process %s.' % os.getpid())
-    num_trace = 9
-    p = Pool(num_trace)
-    for i in range(num_trace):
-        p.apply_async(sim_lru_cache, args=(i,))
-    
-    print('Waiting for all subprocesses done...')
-    p.close()
-    p.join()
-    print('All subprocesses done.')
+    # test 
 
-    os.popen('python3 /research/yazhuo/Tools/send_email.py simulator_dc_1448_variable_size')
+    test()
