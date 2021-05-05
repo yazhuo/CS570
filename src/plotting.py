@@ -17,49 +17,52 @@ DC = [
     "dc_1870",
     "dc_1966"]
 
+
 p_ratio = np.array([
-    0.02298,
-    0.37063,
-    0.00012,
-    0.00092,
-    0.51231,
-    0.09269,
-    0.00025,
-    0.00005,
+    0.2,
+    0.16,
+    0.16,
+    0.16,
+    0.16,
+    0.16
     ])
 
 p_ratio = np.array([
-    0.125,
-    0.125,
-    0.125,
-    0.125,
-    0.125,
-    0.125,
-    0.125,
-    0.125,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
     ])
 
-input_dir = "/research/yazhuo/CS570/Output/K8/dc_1448/variable/"
-
+input_dir = "/research/yazhuo/CS570/Output/K6_kmedoids/dc_1448/variable/"
+single_dir = '/research/yazhuo/CS570/Output/K8/dc_1448/variable/'
 
 ###############################################################################
 #   Plotting
 ###############################################################################
 
 def plot_cdn_mrcs(single_mrc, partition_mrc, max_cache, step):
+
+    m = 1024 * 100
+    s = 100
     
-    x_axis = list(np.arange(0, 1000, 10))
-    s_mrc = single_mrc[0:1000:10] 
-    p_mrc = partition_mrc[0:1000:10] 
+    x_axis = list(np.arange(0, m, s))
+    s_mrc = single_mrc[0:1024:1] 
+    p_mrc = partition_mrc[0:1024:1]
+
+    # print(s_mrc)
+    # print(p_mrc)
 
     plt.figure('mrc plot')
 
     plt.plot(x_axis, s_mrc, label="Unitary Cache")
     plt.plot(x_axis, p_mrc, label="Partitioned Cache")
 
-    plt.xlabel('Cache size (GB)')
+    plt.xlabel('Cache size (MB)')
     plt.ylabel('Object Miss Rate')
-    #plt.xscale('log', basex=2)
+    plt.xscale('log', basex=2)
     plt.ylim(0,1)
     plt.legend()
     plt.savefig("s_p_mrc.png")
@@ -91,15 +94,15 @@ def cal_unit_hit_rate(file_loc):
     return hrc, max_cache, total_req
 
 
-def cache_unit_mrc():
+def cache_unit_mrc(K):
     
     file_loc = input_dir + 'rd_single'
     single_hc, max_cache, total_req = cal_unit_hit_rate(file_loc)
     cache_partition = p_ratio * max_cache
 
-    cluster_hc = [[] for i in range(8)]
+    cluster_hc = [[] for i in range(K)]
 
-    for i in range(8):
+    for i in range(K):
         print(i)
         file_loc = input_dir + 'rd_cluster_' + str(i)
         hc_np, c, part_num_req = cal_unit_hit_rate(file_loc)
@@ -116,8 +119,8 @@ def cache_unit_mrc():
     partition_hc = np.sum(cluster_hc, axis=0)
 
 
-    single_mrc = list((total_req - np.array(single_hc[0:10000:100])) / total_req)
-    partition_mrc = list((total_req - np.array(partition_hc[0:10000:100])) / total_req)
+    single_mrc = list((total_req - np.array(single_hc[0:500:1])) / total_req)
+    partition_mrc = list((total_req - np.array(partition_hc[0:500:1])) / total_req)
 
     # print(single_mrc)
     # print(partition_mrc)
@@ -169,15 +172,16 @@ def cal_variable_hit_rate(file_loc, max_cache, step):
     return hc, hbc, total_req, total_size
 
 
-def cache_variable_mrc(max_cache, step):
-    file_loc = input_dir + 'rd_single'
+def cache_variable_mrc(max_cache, step, K):
+    file_loc = single_dir + 'rd_single'
     single_hc, single_byte_hc, total_req, total_size = cal_variable_hit_rate(file_loc, max_cache, step)
     max_partition = p_ratio * max_cache
+    print(max_partition)
 
-    cluster_hc = [[] for i in range(8)]
-    cluster_byte_hc = [[] for i in range(8)]
+    cluster_hc = [[] for i in range(K)]
+    cluster_byte_hc = [[] for i in range(K)]
 
-    for i in range(8):
+    for i in range(K):
         print(i)
         file_loc = input_dir + 'rd_cluster_' + str(i)
         partition_hc, partition_byte_hc, partition_req, partition_size = cal_variable_hit_rate(file_loc, max_partition[i], step)
@@ -207,12 +211,6 @@ def cache_variable_mrc(max_cache, step):
     # single_bmrc = list((total_size - np.array(single_byte_hc)) / total_size)
     # partition_bmrc = list((total_size - np.array(part_byte_hc)) / total_size)
 
-
-    print(single_mrc[0:1000:10])
-    print(partition_mrc[0:1000:10])
-
-    # print(single_bmrc[0:1000:10])
-    # print(partition_bmrc[0:1000:10])
     
     return single_mrc, partition_mrc
 
@@ -236,7 +234,7 @@ def read_rds():
 
 def read_customer_rds(customer_id, cluster_id):
 
-    file_loc1 = input_dir + "rd_cluster_8_" + str(customer_id)
+    file_loc1 = single_dir + "rd_cluster_8_" + str(customer_id)
     df1 = pd.read_csv(file_loc1, sep = '\t', usecols=[0], header=None)
     single_rds = df1[0].values
 
@@ -252,26 +250,27 @@ def read_customer_rds(customer_id, cluster_id):
 
 if __name__ == "__main__":
 
-    # single_mrc, partition_mrc = cache_unit_mrc()
-    # plot_cdn_mrcs(single_mrc, partition_mrc)
-
     max_cache = 1024 * 1024 * 1024 * 1024
     step = 1024 * 1024
+    K = 8
 
-    # print('calculate cdn mrc')
-    # single_mrc, partition_mrc = cache_variable_mrc(max_cache, step)
-
-    # print('plotting object miss rate')
+    # single_mrc, partition_mrc = cache_unit_mrc(K)
     # plot_cdn_mrcs(single_mrc, partition_mrc, max_cache, step)
+    
+    print('calculate cdn mrc')
+    single_mrc, partition_mrc = cache_variable_mrc(max_cache, step, K)
 
-    print('calculate customer mrc')
-    # 1255, 0
-    # 943, 4
-    # 1066, 4
-    # 601, 1
-    customer_id = 241
-    cluster_id = 3
-    single_mrc, partition_mrc = cus_behavior(customer_id, cluster_id, max_cache, step)
-    print(single_mrc)
-    print(partition_mrc)
+    print('plotting object miss rate')
     plot_cdn_mrcs(single_mrc, partition_mrc, max_cache, step)
+
+    # print('calculate customer mrc')
+    # # 1255, 0
+    # # 943, 4
+    # # 1066, 4
+    # # 601, 1
+    # customer_id = 241
+    # cluster_id = 3
+    # single_mrc, partition_mrc = cus_behavior(customer_id, cluster_id, max_cache, step)
+    # print(single_mrc)
+    # print(partition_mrc)
+    # plot_cdn_mrcs(single_mrc, partition_mrc, max_cache, step)

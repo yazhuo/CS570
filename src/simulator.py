@@ -22,8 +22,8 @@ DC = [
     "dc_1966"]
 
 
-input_dir = "/research/yazhuo/CS570/Dataset/K8/dc_1448/"
-output_dir = "/research/yazhuo/CS570/Output/K8/dc_1448/variable/"
+input_dir = "/research/yazhuo/CS570/Dataset/K8/dc_1384/"
+output_dir = "/research/yazhuo/CS570/Output/K8/dc_1384/"
 
 ###############################################################################
 #   Core functions
@@ -32,6 +32,9 @@ output_dir = "/research/yazhuo/CS570/Output/K8/dc_1448/variable/"
 def sim_lru_cache(a):
 
     c = int(a)
+
+    input_file_loc = input_dir +  "cluster_" + str(c)
+    output_file_loc = output_dir + "rd_cluster_" + str(c)
     
     if c < 8:
         input_file_loc = input_dir +  "cluster_" + str(c)
@@ -108,7 +111,7 @@ def save_rds(output_file_loc, rds, customers, c):
 
 if __name__ == "__main__":
 
-    # test dc_1448
+    # test dc_1384
     
     print('Parent process %s.' % os.getpid())
     num_trace = 9
@@ -121,4 +124,4 @@ if __name__ == "__main__":
     p.join()
     print('All subprocesses done.')
 
-    os.popen('python3 /research/yazhuo/Tools/send_email.py simulator_dc_1448_variable_size')
+    os.popen('python3 /research/yazhuo/Tools/send_email.py simulator_dc_1384_K8')

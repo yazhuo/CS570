@@ -30,7 +30,7 @@ out_DC = [
 ]
 
 input_dir = "/research/jason/ALL_DATA/akamai4/csv/"
-output_dir = "/research/yazhuo/CS570/Dataset/K8/"
+output_dir = "/research/yazhuo/CS570/Dataset/K6_kmedoids/"
 
 
 def find_index(c, clusters):
@@ -71,18 +71,67 @@ def processbyDC(d):
 
 
 
+def processbyCluster(k):
+
+    clusters = getCluster("dc_1384")
+    if k < 6:
+        customers = clusters[k]
+    
+    trace_path = input_dir + "sjc_1384"
+    output_dc_path = output_dir + "dc_1384/"
+
+   
+
+    df = pd.read_csv(trace_path, sep = '\t', usecols=[0,3,5,9], header=None)
+    times = df[0].values
+    cus = df[3].values
+    keys = df[5].values
+    sizes = df[9].values
+
+    n = len(times)
+
+    if k < 6:
+        out_loc = output_dc_path + "cluster_" + str(k)
+        w = open(out_loc, 'a+') 
+
+        for i in range(n):
+            if str(cus[i]) in customers:
+                w.write(str(times[i]) + "\t" + str(cus[i]) + "\t" + str(keys[i]) + "\t" + str(sizes[i]) +  "\n")
+        w.close()
+    else:
+        out_loc = output_dc_path + "single_trace"
+        w = open(out_loc, 'a+') 
+        for i in range(n):
+            g = find_index(cus[i], clusters)
+            if g > -1:
+                w.write(str(times[i]) + "\t" + str(cus[i]) + "\t" + str(keys[i]) + "\t" + str(sizes[i]) +  "\n")
+        w.close()
+
+
+
 if __name__ == "__main__":
 
-    print('Parent process %s.' % os.getpid())
-    num_DC = len(out_DC)
-    p = Pool(num_DC)
-    for i in range(num_DC+1):
-        p.apply_async(processbyDC, args=(i,))
+    # process all DCs
+    # print('Parent process %s.' % os.getpid())
+    # num_DC = len(out_DC)
+    # p = Pool(num_DC)
+    # for i in range(num_DC+1):
+    #     p.apply_async(processbyDC, args=(i,))
     
-    print('Waiting for all subprocesses done...')
+    # print('Waiting for all subprocesses done...')
+    # p.close()
+    # p.join()
+    # print('All subprocesses done.')
+
+    # process one DC in parallel
+    print('Parent process %s.' % os.getpid())
+    num_cluster = 7
+    p = Pool(num_cluster)
+    for i in range(num_cluster):
+        p.apply_async(processbyCluster, args=(i,))
+    print("waiting for all subprocesses done...")
     p.close()
     p.join()
-    print('All subprocesses done.')
-
+    print('All subprocesses done')
     
-    os.popen('python3 /research/yazhuo/Tools/send_email.py')
+    os.popen('python3 /research/yazhuo/Tools/send_email.py dc_1384_process')
