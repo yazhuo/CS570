@@ -35,15 +35,10 @@ def getValidIDs(dc):  # read the valid cutomer ids for a datacenter
             validIDs.append(id.strip())
     return validIDs
 
-<<<<<<< HEAD
-def getCluster(dc):
-    with open(culster_path + dc + "/kmedoids.p", 'rb') as pickle_file:
-=======
 #  get clusters generated from all the features
 #  file = '/kmeans.p' or '/kmedoids.p'
 def getCluster(dc, file):
     with open(culster_path + dc + file, 'rb') as pickle_file:
->>>>>>> f96e36a8db1f7e0c1ed9c9fa413dcc31df763013
         clusters = pickle.load(pickle_file) # list of list
 
     return clusters  
