@@ -22,6 +22,7 @@ DC = ["dc_1384",
 
 feature_path = "/research/yazhuo/ALL_DATA/CDN/features/"
 culster_path = "/research/yazhuo/ALL_DATA/CDN/clusters/" 
+cluster_path_selection = "/research/yazhuo/ALL_DATA/CDN/selection/" 
 freq = "/freq.p"
 size = "/size.p"
 burst = "/burst.csv"
@@ -34,12 +35,20 @@ def getValidIDs(dc):  # read the valid cutomer ids for a datacenter
             validIDs.append(id.strip())
     return validIDs
 
-def getCluster(dc):
-    with open(culster_path + dc + "/kmeans.p", 'rb') as pickle_file:
+#  get clusters generated from all the features
+#  file = '/kmeans.p' or '/kmedoids.p'
+def getCluster(dc, file):
+    with open(culster_path + dc + file, 'rb') as pickle_file:
         clusters = pickle.load(pickle_file) # list of list
 
     return clusters  
 
+# get the clusers generated from selected feature
+#  file = '/kmeans.p' or '/kmedoids.p'
+def getClusterSelection(dc, file):
+    with open(cluster_path_selection + dc + file, 'rb') as pickle_file:
+        clusters = pickle.load(pickle_file) # list of list
+    return clusters  
 
 def readAttr(dc):  # read the features
     validIDs = getValidIDs(dc)
