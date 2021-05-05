@@ -48,15 +48,20 @@ def getCDF():
                             freqs.append(val)
 
                     freqs = np.array(freqs)
-                    freqs = np.sort(freqs)
-
-                    count, bins_count = np.histogram(freqs, bins=len(freqs))
+                    # freqs = np.sort(freqs)
+                    num_bins = max(freqs) - min(freqs)
+                    if num_bins == 0:
+                        num_bins = 1
+                    count, bins_count = np.histogram(freqs, bins=num_bins)
                     pdf = count / sum(count)
                     cdf = np.cumsum(pdf)
 
+                    idx10 = np.argmax(cdf>=0.10)
+                    idx30 = np.argmax(cdf>=0.30)
                     idx50 = np.argmax(cdf>=0.50)
+                    idx70 = np.argmax(cdf>=0.70)
                     idx99 = np.argmax(cdf>=0.99)
-                    freq_dic[customer] = [freqs[idx50], freqs[idx99]]
+                    freq_dic[customer] = [bins_count[idx10], bins_count[idx30], bins_count[idx50], bins_count[idx70], bins_count[idx99]]
                 else:  # size frequence file
                     size = pickle.load(pickle_file)
                     sizes = []
@@ -64,18 +69,24 @@ def getCDF():
                         for i in range(val):
                             sizes.append(int(key))
                     sizes = np.array(sizes)
-                    sizes = np.sort(sizes)
-                  
-                    count, bins_count = np.histogram(sizes, bins=len(sizes))
+                    # sizes = np.sort(sizes)
+            
+                    num_bins = max(sizes) - min(sizes)
+                    if num_bins == 0:
+                        num_bins = 1                  
+                    count, bins_count = np.histogram(sizes, bins=num_bins)
                     pdf = count / sum(count)
                     cdf = np.cumsum(pdf)
+                    idx10 = np.argmax(cdf>=0.10)
+                    idx30 = np.argmax(cdf>=0.30)
                     idx50 = np.argmax(cdf>=0.50)
+                    idx70 = np.argmax(cdf>=0.70)
                     idx99 = np.argmax(cdf>=0.99)
-                    size_dic[customer] = [sizes[idx50], sizes[idx99]]
+                    size_dic[customer] = [bins_count[idx10], bins_count[idx30], bins_count[idx50], bins_count[idx70], bins_count[idx99]]
         # write results 
         output_path = output + dc + "/"
-        pickle.dump(freq_dic, open(output_path + "freq.p", "wb"))
-        pickle.dump(size_dic, open(output_path + "size.p", "wb"))
+        pickle.dump(freq_dic, open(output_path + "freqnew.p", "wb"))
+        pickle.dump(size_dic, open(output_path + "sizenew.p", "wb"))
 
 
 if __name__ == "__main__":

@@ -29,8 +29,8 @@ K = range(2,16,2)  # range of number of clusters
 
 
 feature_path = "/research/yazhuo/ALL_DATA/CDN/features/"
-freq = "/freq.p"
-size = "/size.p"
+freq = "/freqnew.p"
+size = "/sizenew.p"
 burst = "/burst.csv"
 
 output_path = "/research/yazhuo/ALL_DATA/CDN/clusters/"   # store the cluster performence result
