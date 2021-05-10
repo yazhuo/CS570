@@ -9,9 +9,6 @@ Split by costomers: `/research/yazhuo/ALL_DATA/CDN/splitCustomer/`
 
 ### Trace Illustration
 A sample aggregated request:
-
-`1525059390.677 116.242.110.164 189 1066 463 bc1cc513be92f2dc1cbcaa3fbcc08668ca3720726c8922e4c39fd62d4b16f61d dummyStatus dummyHit dummyToEdge 4096 2441 ecomm`
-
 `timestamp client data_center cutomer bucket object dummyStatus dummyHit dummyToEdge object_size request_size traffic_type`
 
 Note: 
