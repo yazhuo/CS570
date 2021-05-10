@@ -1,4 +1,4 @@
-# CS570
+# CDN Cache EnhancementVia Workload Characteristics Mining
 Emory CS570 course project
 
 ## Dataset
