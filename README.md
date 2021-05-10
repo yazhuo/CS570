@@ -18,20 +18,6 @@ Note:
 - client refers to a user or machine who sends the request
 - customer refers to a content provider, such as CNN.
 
-## Tasks
-### Yazhuo
-- [ ] Recency feature extraction (I have implemented data structure to get recency faster, and other features should be not that hard to extract)
-- [ ] CDN Cache Simulator
-
-### Yanan
-- [ ] feature?
-- [ ] cluster?
-
-### Yibo
-- [ ] feature?
-- [ ] cluster?
-
-
 ## Result Comparison
 
 For each DC,
