@@ -1,4 +1,4 @@
-""" This script culsters the customers using KMeans"""
+""" This script culsters the customers using 3 clustering algorithms"""
 
 from sklearn.cluster import KMeans
 from sklearn.metrics import silhouette_score
@@ -8,6 +8,9 @@ import numpy as np
 import csv
 from collections import defaultdict
 import pickle
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn_extra.cluster import KMedoids
+
 
 # The list of datacenters
 DC = ["dc_1384",
@@ -17,17 +20,13 @@ DC = ["dc_1384",
       "dc_1870",
       "dc_189",
       "dc_1966",
-    #   "dc_1980",
-    #   "dc_66",
-    #   "dc_67",
-    #  "dc_85",
       "dc_924"
-    #   "lax_1319"
 ]
 
+
 feature_path = "/research/yazhuo/ALL_DATA/CDN/features/"
-freq = "/freq.p"
-size = "/size.p"
+freq = "/freqnew.p"
+size = "/sizenew.p"
 burst = "/burst.csv"
 
 output_path = "/research/yazhuo/ALL_DATA/CDN/clusters/"   # store the cluster result, named as the clustering function
@@ -82,30 +81,38 @@ def preprocess(X):
     X_scaled = scaler.fit_transform(X)
     return X_scaled
 
-def kmeans():
-    n_clusters = 8
+def clustering():
+    out_file_names_csv = ["/kmeans.csv", "/kmedoids.csv", "/DBSCAN.csv"]
+    out_file_names = ["/kmeans.p", "/kmedoids.p", "/DBSCAN.p"]
+    n_clusters = 6
     for dc in DC:
         customer_ids, attrs = readAttr(dc)
         X = np.array(attrs)
         X = preprocess(X)
-        clusterer = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
-        cluster_labels = clusterer.labels_
 
-        cluster_dict = defaultdict(list)
+        KmeansClusterer = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
+        KMedoidsClusterer = KMedoids(n_clusters=n_clusters, random_state=0).fit(X)
+        DBSCANClusterer = DBSCAN(eps=3, min_samples=2).fit(X)
+        clusterers = [KmeansClusterer, KMedoidsClusterer, DBSCANClusterer]
 
-        for id, label in zip(customer_ids, cluster_labels):
-            cluster_dict[label].append(id)
+        for clusterer, file_name_csv,file_name in zip(clusterers, out_file_names_csv,out_file_names):
+            cluster_labels = clusterer.labels_
 
-        clusters = list(cluster_dict.values())
+            cluster_dict = defaultdict(list)
 
-        with open(output_path + dc + "/kmeans.csv","w") as f:
-            wr = csv.writer(f)
-            wr.writerows(clusters)
+            for id, label in zip(customer_ids, cluster_labels):
+                cluster_dict[label].append(id)
 
-        pickle.dump(clusters, open(output_path + dc + "/kmeans.p", "wb"))
+            clusters = list(cluster_dict.values())
+
+            with open(output_path + dc + file_name_csv,"w") as f:
+                wr = csv.writer(f)
+                wr.writerows(clusters)
+
+            pickle.dump(clusters, open(output_path + dc + file_name, "wb"))
 
    
 
 if __name__ == "__main__":
-    kmeans()
+    clustering()
 

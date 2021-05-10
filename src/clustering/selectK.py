@@ -8,6 +8,7 @@ import numpy as np
 import csv
 from collections import defaultdict
 import pickle
+from sklearn_extra.cluster import KMedoids
 
 # The list of datacenters
 DC = ["dc_1384",
@@ -17,12 +18,7 @@ DC = ["dc_1384",
       "dc_1870",
       "dc_189",
       "dc_1966",
-    #   "dc_1980",
-    #   "dc_66",
-    #   "dc_67",
-    #  "dc_85",
       "dc_924"
-    #   "lax_1319"
 ]
 
 K = range(2,16,2)  # range of number of clusters
@@ -51,7 +47,7 @@ def readAttr(dc):  # read the features
         csvreader = csv.reader(csv_file)
         fields = next(csvreader)
         for row in csvreader:
-            # if row[0] in validIDs:  # only keep the valid customers
+            if row[0] in validIDs:  # only keep the valid customers
                 for val in row[-10:]:  # only keep the last 10 time window
                         attr_dict[row[0]].append(int(val))
     
@@ -76,7 +72,7 @@ def readAttr(dc):  # read the features
 
     customer_ids = attr_dict.keys()
 
-    print(dc, len(validIDs), len(customer_ids))
+    # print(dc, len(validIDs), len(customer_ids))
 
     return customer_ids, list(attr_dict.values())
 
@@ -85,35 +81,44 @@ def preprocess(X):
     X_scaled = scaler.fit_transform(X)
     return X_scaled
 
-def evaluate(dc, X):
-    sse = []  # Sum of squared distances
-    ss = []   # Silhouette score
-    
-    for n_clusters in K:
-        
-        clusterer = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
-        cluster_labels = clusterer.labels_
-        silhouette_avg = silhouette_score(X, cluster_labels)
-        ss.append(silhouette_avg)
-        sse.append(clusterer.inertia_) 
-
-    fig = plt.figure(figsize=(14,7))
-    fig.add_subplot(121)
-    plt.plot(K, sse)
-    plt.xlabel("Number of cluster")
-    plt.ylabel("SSE")
-    fig.add_subplot(122)
-    plt.plot(K, ss)
-    plt.xlabel("Number of cluster")
-    plt.ylabel("Silhouette Score")
-    plt.savefig(output_path + dc + "/selectk.png")
-
-   
-
-if __name__ == "__main__":
+def evaluate():
+    sseall1 = []
+    sseall2 = []
     for dc in DC:
         customer_ids, attrs = readAttr(dc)
         X = np.array(attrs)
         X = preprocess(X)
-        evaluate(dc, X)
+        sse1 = []  # Sum of squared distances for Kmeans
+        sse2 = []  # Sum of squared distances for Kmedoids
+    
+        for n_clusters in K:
+            
+            clusterer1 = KMeans(n_clusters=n_clusters, random_state=0).fit(X)
+            clusterer2 = KMedoids(n_clusters=n_clusters, random_state=0).fit(X)
+  
+            sse1.append(clusterer1.inertia_) 
+            sse2.append(clusterer2.inertia_) 
 
+        sseall1.append(sse1)
+        sseall2.append(sse2)
+
+    fig = plt.figure(figsize=(20,7))
+    fig.add_subplot(121)
+
+    for i,sse in enumerate(sseall1):
+        plt.plot(K, sse, label=DC[i])
+    plt.xlabel("Number of cluster")
+    plt.ylabel("SSE")
+    plt.legend()
+    fig.add_subplot(122)
+    for i,sse in enumerate(sseall2):
+        plt.plot(K, sse, label=DC[i])
+    plt.xlabel("Number of cluster")
+    plt.ylabel("SSE")
+    plt.legend()
+    plt.savefig(output_path + "/SSE2.png")
+
+  
+
+if __name__ == "__main__":
+    evaluate()
